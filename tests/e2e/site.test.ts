@@ -59,18 +59,21 @@ test('works offline after the first visit', async ({ page, context }) => {
 	await context.setOffline(false);
 });
 
-test('endless tower keeps only a few floors in the page, even far down', async ({ page }) => {
+test('tower keeps only a few of its 100 floors in the page', async ({ page }) => {
 	await page.goto('./');
 	const tower = page.getByRole('region', { name: /scroll to climb down/i });
 	await tower.scrollIntoViewIfNeeded();
+	const where = page.locator('#tower dd').first();
+	await expect(where).toHaveText('the roof');
 
 	await tower.evaluate((el) => el.scrollBy(0, 4000));
-	await expect(page.locator('#tower dd').first()).toHaveText(/floor \d+/);
+	await expect(where).toHaveText(/floor (8[0-9]|9[0-9])/);
 
-	await page.getByRole('button', { name: /jump 10,000 floors/i }).click();
-	await expect(page.locator('#tower dd').first()).toHaveText(/floor 10,\d{3}/);
+	await page.getByRole('button', { name: 'Skip to the ground floor' }).click();
+	await expect(where).toHaveText('the ground floor', { timeout: 15_000 });
+	await expect(page.getByRole('button', { name: 'Back to the roof' })).toBeVisible();
 
 	const floorsInDom = await page.locator('.floor').count();
 	expect(floorsInDom).toBeGreaterThan(0);
-	expect(floorsInDom).toBeLessThanOrEqual(6);
+	expect(floorsInDom).toBeLessThanOrEqual(5);
 });

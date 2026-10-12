@@ -74,11 +74,11 @@
 
 	<section id="tower" class="split" aria-labelledby="tower-title">
 		<div class="tower-copy">
-			<h2 id="tower-title">An endless tower</h2>
+			<h2 id="tower-title">A hundred floors down</h2>
 			<p>
-				Scroll down and the cat climbs forever. Floors are drawn as they come into view and thrown
-				away once they leave, so the page never holds more than a handful, whether you are on floor
-				3 or floor 30,000.
+				Scroll down and the cat climbs a hundred floors to the street. Floors are drawn as they come
+				into view and thrown away once they leave, so the page only ever holds the handful you can
+				see.
 			</p>
 		</div>
 		<Tower />
