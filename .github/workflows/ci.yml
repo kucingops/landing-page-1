@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BASE_PATH: /landing-page-1
+
+jobs:
+  attribution:
+    name: No AI attribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check commit authors and messages
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif [ -n "${{ github.event.before }}" ] && ! echo "${{ github.event.before }}" | grep -q '^0*$'; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="${{ github.sha }}"
+          fi
+          bash scripts/check-attribution.sh "$range"
+
+  test:
+    name: Check, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Format
+        run: bun run lint
+      - name: Type check
+        run: bun run check
+      - name: Unit tests
+        run: bun run test
+      - name: Build
+        run: bun run build
+      - name: Bundle size budget
+        run: bun run size
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+      - name: Browser tests (desktop + mobile, incl. offline)
+        run: bun run test:e2e
+      - name: Lighthouse
+        run: npx --yes @lhci/cli@0.15.x autorun
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: build
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: test-results
+          retention-days: 7
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [attribution, test]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+      - id: deployment
+        uses: actions/deploy-pages@v4

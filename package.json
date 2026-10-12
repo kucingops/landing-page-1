@@ -1,0 +1,38 @@
+{
+	"name": "landing-page-1",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''; git config core.hooksPath .githooks || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"format": "prettier --write .",
+		"lint": "prettier --check .",
+		"test": "vitest run",
+		"test:e2e": "playwright test",
+		"size": "bun scripts/size-budget.ts",
+		"guard": "bash scripts/check-attribution.sh"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.64.0",
+		"@sveltejs/adapter-static": "^4",
+		"@sveltejs/kit": "^3",
+		"@sveltejs/vite-plugin-svelte": "^7",
+		"@types/bun": "^1.4.2",
+		"@types/node": "^26.6.5",
+		"prettier": "^3.9.10",
+		"prettier-plugin-svelte": "^4.1.1",
+		"svelte": "^5",
+		"svelte-check": "^4",
+		"typescript": "^6",
+		"vite": "^8",
+		"vitest": "^5"
+	},
+	"imports": {
+		"#lib": "./src/lib/index.ts",
+		"#lib/*": "./src/lib/*"
+	}
+}
