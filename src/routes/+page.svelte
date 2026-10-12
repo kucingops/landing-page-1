@@ -1,6 +1,7 @@
 <script lang="ts">
 	import LiveHero from '#lib/LiveHero.svelte';
 	import InstallButton from '#lib/InstallButton.svelte';
+	import Tower from '#lib/Tower.svelte';
 	import { profile, projects, stack } from '#lib/profile.js';
 	import { asset } from '$app/paths';
 
@@ -33,6 +34,7 @@
 	</a>
 	<nav aria-label="Sections">
 		<a href="#work">Work</a>
+		<a href="#tower">Endless scroll</a>
 		<a href="#how">How it's built</a>
 		<a href="#contact">Contact</a>
 	</nav>
@@ -68,6 +70,18 @@
 				can deploy. <a href={profile.source}>Read the source</a>.
 			</p>
 		</div>
+	</section>
+
+	<section id="tower" class="split" aria-labelledby="tower-title">
+		<div class="tower-copy">
+			<h2 id="tower-title">An endless tower</h2>
+			<p>
+				Scroll down and the cat climbs forever. Floors are drawn as they come into view and thrown
+				away once they leave, so the page never holds more than a handful, whether you are on floor
+				3 or floor 30,000.
+			</p>
+		</div>
+		<Tower />
 	</section>
 
 	<section id="work" class="split" aria-labelledby="work-title">
@@ -206,6 +220,12 @@
 		font-size: var(--step-1);
 		font-weight: 600;
 		letter-spacing: -0.01em;
+	}
+
+	.tower-copy p {
+		margin-top: 0.75rem;
+		color: var(--muted);
+		max-width: 34ch;
 	}
 
 	.rules {

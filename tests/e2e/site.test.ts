@@ -58,3 +58,19 @@ test('works offline after the first visit', async ({ page, context }) => {
 	await expect(page.getByText('from your offline cache')).toBeVisible();
 	await context.setOffline(false);
 });
+
+test('endless tower keeps only a few floors in the page, even far down', async ({ page }) => {
+	await page.goto('./');
+	const tower = page.getByRole('region', { name: /scroll to climb down/i });
+	await tower.scrollIntoViewIfNeeded();
+
+	await tower.evaluate((el) => el.scrollBy(0, 4000));
+	await expect(page.locator('#tower dd').first()).toHaveText(/floor \d+/);
+
+	await page.getByRole('button', { name: /jump 10,000 floors/i }).click();
+	await expect(page.locator('#tower dd').first()).toHaveText(/floor 10,\d{3}/);
+
+	const floorsInDom = await page.locator('.floor').count();
+	expect(floorsInDom).toBeGreaterThan(0);
+	expect(floorsInDom).toBeLessThanOrEqual(6);
+});
